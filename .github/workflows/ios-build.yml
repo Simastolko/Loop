@@ -1,0 +1,28 @@
+name: Build Loop iOS
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Xcode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15.2'
+    - name: Build Loop
+      run: |
+        xcodebuild -workspace Loop.xcworkspace \
+        -scheme Loop \
+        -configuration Release \
+        -sdk iphoneos \
+        CODE_SIGN_IDENTITY="" \
+        CODE_SIGNING_REQUIRED=NO
+    - name: Archive IPA
+      run: mkdir -p output && cp -R build/Release-iphoneos/*.app output/
+    - name: Upload IPA
+      uses: actions/upload-artifact@v3
+      with:
+        name: Loop-IPA
+        path: output/
